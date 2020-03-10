@@ -45,13 +45,15 @@ public class LinkedListTest {
         int target = 2;
         LinkedList<Integer> lru = new LinkedList<>();
         /*  初始化一些数据 */
-        lru.addAll(Stream.of(1, 3, 4, 5, 2, 6, 7, 2).collect(Collectors.toList()));
-        /*  找到目标值的位置索引 */
-        int index = lru.indexOf(target);
-        if (index > 0) {
-            /*  如果找到了,且不再链表头位置,则删除此元素,再重新在链表头添加此元素 */
-            lru.remove(index);
-            lru.addFirst(target);
+        lru.addAll(Stream.of(1, 3, 4, 5, 2, 6, 7).collect(Collectors.toList()));
+        /*  在表头添加最新访问元素 */
+        lru.addFirst(target);
+        /*  从第二个位置开始一次遍历链表,找target,找到就删除 */
+        for (int i = 1; i < lru.size(); i++) {
+            if (lru.get(i) == target) {
+                lru.remove(i);
+                break;
+            }
         }
         /*  输出链表 */
         System.out.println(lru);
