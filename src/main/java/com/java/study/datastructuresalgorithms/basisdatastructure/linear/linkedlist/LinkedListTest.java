@@ -3,6 +3,7 @@ package com.java.study.datastructuresalgorithms.basisdatastructure.linear.linked
 import org.junit.Test;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -58,6 +59,46 @@ public class LinkedListTest {
         /*  输出链表 */
         System.out.println(lru);
 
+    }
+
+    /**
+     * 检查链表存储的字符串是否是回文串?
+     * 如何判断一个字符串是否是回文字符串的问题，我想你应该听过，我们今天的题目就是基于这个问题的改造版本。
+     * 如果字符串是通过单链表来存储的，那该如何来判断是一个回文串呢？
+     * <p>
+     * 思路 : 如果字符串是数组存储的,直接用爽指针分别从前到后和从后到前遍历比较就能判断是否为回文串,时间复杂度为O(n)
+     * 当用链表存储时,我们可以用快慢指针,找到链表的中心点,且同时反转链表的前半部分,然后在依次比较两个链表判断是否为回文串
+     * 时间复杂度为O(n),空间复杂度为O(1)
+     */
+    @Test
+    public void checkPalindrome() {
+
+        List<String> collect = Stream.of("1", "2", "3", "4", "4", "3", "2", "1").collect(Collectors.toList());
+        XbSingleLinkedList<String> linkedList = new XbSingleLinkedList<>(null);
+
+        XbSingleLinkedList<String> reverse = new XbSingleLinkedList<>(null);
+        Node<String> head = linkedList.getNode();
+        Node<String> slow = head;
+        Node<String> fast = head;
+        while (fast != null && fast.next != null) {
+            reverse.addFirst(slow.data);
+            slow = slow.next(1);
+            fast = fast.next(2);
+            linkedList.removeFirst();
+            System.out.println(slow + " | " + fast);
+        }
+        if (reverse.size() == 0) {
+            System.out.println("链表中只有一个元素或0个元素,所以是回文串");
+        }
+        if (linkedList.size() > reverse.size()) {
+            linkedList.removeFirst();
+        }
+        if (reverse.toString().equals(linkedList.toString())) {
+            System.out.println("是回文串");
+        } else {
+            System.out.println("不是回文串");
+        }
+        System.out.println(reverse + "" + linkedList);
     }
 
 
