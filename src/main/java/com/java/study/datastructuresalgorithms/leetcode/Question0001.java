@@ -8,12 +8,12 @@ import java.util.Map;
  * @author Mr.Xu
  * @date 2020/3/7 16:47
  */
-public class QuestionOne {
+public class Question0001 {
 
 
     public static void main(String[] args) {
         int[] nums = new int[]{2, 7, 11, 15};
-        int[] ints = new QuestionOne().twoSum1(nums, 18);
+        int[] ints = new Question0001().twoSum1(nums, 18);
         System.out.println(Arrays.toString(ints));
     }
 
