@@ -18,4 +18,7 @@
   1. 先把next_n和next_last指向head, 且 next_n1=null ,
   2. 先让next_last移动n-1步,使其和next_n拉开距离
   3. 然后同时移动next_n和next_last,且在移动next_n之前,把next_n1指向next_n
-  4.一直执行第3步直到next_last移动到链表末尾,此时next_n即为要删除的元素
+  4.一直执行第3步直到next_last移动到链表末尾,此时next_n即为要删除的元素  
+
+复杂度分析:    
+只需要一次扫描链表,时间复杂度为O(n),额外的3地址空间为常量级别,空间负责度为O(1)
