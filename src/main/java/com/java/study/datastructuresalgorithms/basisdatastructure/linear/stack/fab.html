@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div id="back" onclick="backf()" style="position: absolute;width: 100px;height: 100px;background-color: red">
+
+</div>
+<div id="current" onclick="currentf()"
+     style="position: absolute;left: 100px;width: 100px;height: 100px;background-color: gray">
+    1111
+</div>
+<div id="forward" onclick="forwardf()"
+     style="position: absolute;left: 200px;width: 100px;height: 100px;background-color: red">
+
+</div>
+
+<script type="application/javascript">
+    var i = 1;
+    var back = new Array();
+    var forward = new Array();
+
+    function backf() {
+        if(forward.length==0){
+            return ;
+        }
+        back.push(i);
+        i = forward.pop();
+        document.getElementById("current").innerText = " neirong " + i;
+        flushs()
+    }
+
+    function currentf() {
+        forward.push(i)
+        i++;
+        document.getElementById("current").innerText = " neirong " + i;
+        flushs()
+    }
+
+    function forwardf() {
+        if(back.length==0){
+            return ;
+        }
+        forward.push(i);
+        i = back.pop();
+        document.getElementById("current").innerText = " neirong " + i;
+        flushs()
+    }
+
+    function flushs() {
+        document.getElementById("back").innerText = back.toLocaleString();
+        var forwardt = forward.concat();
+        document.getElementById("forward").innerText = forwardt.reverse().toLocaleString();
+    }
+</script>
+
+</body>
+</html>
