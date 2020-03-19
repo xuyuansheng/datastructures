@@ -12,7 +12,7 @@ public class SequentialStack {
 
     public static void main(String[] args) {
 
-        SequentialStack sequentialStack = new SequentialStack(4, "1", "3");
+        SequentialStack sequentialStack = new SequentialStack(3, "1", "3");
         System.out.println(sequentialStack.push("5"));
         System.out.println(sequentialStack.push("4"));
         System.out.println(sequentialStack.push("8"));
@@ -57,7 +57,8 @@ public class SequentialStack {
 
     public String push(String item) {
         if (count == dataArray.length) {
-            return null;
+            expandSize();
+            return this.push(item);
         } else {
             dataArray[count] = item;
             count++;
@@ -73,6 +74,7 @@ public class SequentialStack {
             count--;
             String result = dataArray[count];
             dataArray[count] = null;
+            shrinkSize();
             return result;
         }
     }
@@ -94,5 +96,31 @@ public class SequentialStack {
     @Override
     public String toString() {
         return "dataArray=" + Arrays.toString(dataArray);
+    }
+
+    int loadFactor = 2;
+
+    /**
+     * 扩容
+     */
+    void expandSize() {
+        int i = dataArray.length * loadFactor;
+        String[] newArray = new String[i];
+        System.arraycopy(this.dataArray, 0, newArray, 0, this.count);
+        this.dataArray = newArray;
+        System.out.println("扩容成功 newSize = " + dataArray.length);
+    }
+
+    /**
+     * 缩容
+     */
+    void shrinkSize() {
+        if (this.count * loadFactor < dataArray.length) {
+            int i = count + count / loadFactor;
+            String[] newArray = new String[i];
+            System.arraycopy(this.dataArray, 0, newArray, 0, this.count);
+            this.dataArray = newArray;
+            System.out.println("缩容成功 newSize = " + dataArray.length);
+        }
     }
 }
