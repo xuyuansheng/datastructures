@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -67,9 +70,40 @@ public class XbSequenceBinaryTree<T> {
         return "";
     }
 
+
+    /**
+     * 广度优先遍历
+     */
+    public List<T> bfsTraversal() {
+        ArrayList<T> list = new ArrayList<>();
+        LinkedBlockingDeque<Integer> queue = new LinkedBlockingDeque<>();
+        if (data.length > 1) {
+            queue.add(1);
+        }
+        int lenFromRoot = 0;
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            System.out.print("距离根节点的距离 = " + (lenFromRoot++) + "  element = [");
+            Stream.generate(() -> queue.poll()).limit(size).forEach(index -> {
+                System.out.print(" " + data[index] + " ");
+                int leftNodeIndex = index * 2;
+                if (data.length > (leftNodeIndex) && data[leftNodeIndex] != null) {
+                    queue.add(leftNodeIndex);
+                }
+                int rightNodeIndex = index * 2 + 1;
+                if (data.length > (rightNodeIndex) && data[rightNodeIndex] != null) {
+                    queue.add(rightNodeIndex);
+                }
+            });
+            System.out.println("]\n");
+        }
+        return list;
+    }
+
     public static void main(String[] args) {
         Integer[] objects = Stream.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16).toArray(Integer[]::new);
         XbSequenceBinaryTree<Integer> build = XbSequenceBinaryTree.build(objects);
+        build.bfsTraversal();
         System.out.println(build);
     }
 
