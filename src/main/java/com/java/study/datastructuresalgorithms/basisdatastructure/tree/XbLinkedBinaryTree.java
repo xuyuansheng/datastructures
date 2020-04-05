@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.RandomUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -57,11 +61,62 @@ public class XbLinkedBinaryTree<T> {
         return result;
     }
 
+    @Override
+    public String toString() {
+        /*  toString 把二叉树按层打印出来 */
+        List<XbLinkedBinaryTree> data = new ArrayList();
+        data.add(this);
+        while (data.size() > 0) {
+            System.out.println(data.stream().map(k -> k.getData().toString()).collect(Collectors.joining()));
+            List<XbLinkedBinaryTree> collect = data.stream().map(k -> {
+                List<XbLinkedBinaryTree> temp = new ArrayList();
+                if (k.getLeftNode() != null) {
+                    temp.add(k.getLeftNode());
+                }
+                if (k.getRightNode() != null) {
+                    temp.add(k.getRightNode());
+                }
+                return temp;
+            }).flatMap(k -> k.stream()).collect(Collectors.toList());
+            data.clear();
+            data.addAll(collect);
+        }
+        return "";
+    }
+
+    /**
+     * 广度优先遍历
+     */
+    public List<T> bfsTraversal() {
+        ArrayList<T> list = new ArrayList<>();
+        LinkedBlockingDeque<XbLinkedBinaryTree<T>> queue = new LinkedBlockingDeque<>();
+        queue.add(this);
+        do {
+            XbLinkedBinaryTree<T> element = queue.poll();
+            if (element == null) {
+                break;
+            }
+            list.add(element.data);
+            XbLinkedBinaryTree leftNode = element.getLeftNode();
+            if (leftNode != null) {
+                queue.add(leftNode);
+            }
+            XbLinkedBinaryTree rightNode = element.getRightNode();
+            if (rightNode != null) {
+                queue.add(rightNode);
+            }
+        } while (true);
+        System.out.println(list);
+        return list;
+    }
+
 
     public static void main(String[] args) {
-        Integer[] objects = Stream.of(1, 2, 3).toArray(Integer[]::new);
+        Integer[] objects = Stream.of(1, 2, 3, 4, 5, 6, 7).toArray(Integer[]::new);
         XbLinkedBinaryTree<Integer> build = XbLinkedBinaryTree.build(objects);
-        System.out.println(build);
+        build.toString();
+        build.bfsTraversal();
+
     }
 
 }
