@@ -91,22 +91,23 @@ public class XbLinkedBinaryTree<T> {
         ArrayList<T> list = new ArrayList<>();
         LinkedBlockingDeque<XbLinkedBinaryTree<T>> queue = new LinkedBlockingDeque<>();
         queue.add(this);
-        do {
-            XbLinkedBinaryTree<T> element = queue.poll();
-            if (element == null) {
-                break;
-            }
-            list.add(element.data);
-            XbLinkedBinaryTree leftNode = element.getLeftNode();
-            if (leftNode != null) {
-                queue.add(leftNode);
-            }
-            XbLinkedBinaryTree rightNode = element.getRightNode();
-            if (rightNode != null) {
-                queue.add(rightNode);
-            }
-        } while (true);
-        System.out.println(list);
+        int lenFromRoot = 0;
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            System.out.print("距离根节点的距离 = " + (lenFromRoot++));
+            Stream.generate(() -> queue.poll()).limit(size).forEach(element -> {
+                System.out.print("  element = " + element.data);
+                XbLinkedBinaryTree leftNode = element.getLeftNode();
+                if (leftNode != null) {
+                    queue.add(leftNode);
+                }
+                XbLinkedBinaryTree rightNode = element.getRightNode();
+                if (rightNode != null) {
+                    queue.add(rightNode);
+                }
+            });
+            System.out.println("\n");
+        }
         return list;
     }
 
