@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -48,8 +49,26 @@ public class XbSequenceBinaryTree<T> {
         return new XbSequenceBinaryTree<>((T[]) dataT, height);
     }
 
+
+    @Override
+    public String toString() {
+        /*  打印一个完全二叉树 */
+        for (int i = 1; i <= height; i++) {
+            int index = (int) Math.pow(2, i - 1);
+            int stepLen = (int) Math.pow(2, height - i + 1);
+            int preLen = (stepLen - 2);
+            String collectPreLen = Stream.generate(() -> ".").limit(preLen).collect(Collectors.joining());
+            for (int j = index; j < Math.min(data.length, (2 * index)); j++) {
+                String collect = Stream.generate(() -> ".").limit(stepLen).collect(Collectors.joining());
+                System.out.print(collectPreLen + data[j] + collect);
+            }
+            System.out.println("\n");
+        }
+        return "";
+    }
+
     public static void main(String[] args) {
-        Integer[] objects = Stream.of(1, 2, 3, 4, 5, 6, 7, 8).toArray(Integer[]::new);
+        Integer[] objects = Stream.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16).toArray(Integer[]::new);
         XbSequenceBinaryTree<Integer> build = XbSequenceBinaryTree.build(objects);
         System.out.println(build);
     }
