@@ -49,14 +49,15 @@ public class XbLinkedBinaryTree<T> {
 
     private static <T> XbLinkedBinaryTree<T> build(int left, int right, T[] t) {
         XbLinkedBinaryTree result = null;
-        int length = right - left + 1;
-        if (length > 0) {
-            int leftNumber = RandomUtils.nextInt(0, length);
-            XbLinkedBinaryTree<T> leftTree = XbLinkedBinaryTree.build(left + 1, left + leftNumber, t);
-            XbLinkedBinaryTree<T> rightTree = XbLinkedBinaryTree.build(left + leftNumber + 1, right, t);
+        int length = right - left;
+        if (length >= 0) {
+            /*  选择此节点的数据索引位置 */
+            int pickNumber = RandomUtils.nextInt(left, right + 1);
+            XbLinkedBinaryTree<T> leftTree = XbLinkedBinaryTree.build(left, pickNumber - 1, t);
+            XbLinkedBinaryTree<T> rightTree = XbLinkedBinaryTree.build(pickNumber + 1, right, t);
             int leftTreeHeight = leftTree == null ? 0 : leftTree.getHeight();
             int rightTreeHeight = rightTree == null ? 0 : rightTree.getHeight();
-            result = new XbLinkedBinaryTree(leftTree, t[left], rightTree, Math.max(leftTreeHeight, rightTreeHeight) + 1);
+            result = new XbLinkedBinaryTree(leftTree, t[pickNumber], rightTree, Math.max(leftTreeHeight, rightTreeHeight) + 1);
         }
         return result;
     }
@@ -111,12 +112,48 @@ public class XbLinkedBinaryTree<T> {
         return list;
     }
 
+    /**
+     * 深度优先遍历,使用递归的方式 和 使用栈的方式
+     *
+     * @return
+     */
+    public List<T> dfsTraversal(boolean useStack) {
+        ArrayList<T> result = new ArrayList<>();
+        if (useStack) {
+
+        } else {
+            doDfsTraversalRecursive(this, result);
+        }
+        System.out.println("深度优先遍历 " + result);
+        return result;
+    }
+
+    /**
+     * 深度优先遍历,使用递归的方式
+     *
+     * @return
+     */
+    private void doDfsTraversalRecursive(XbLinkedBinaryTree<T> parentNode, List<T> result) {
+        if (result.contains(parentNode.data)) {
+            /*  剪枝,重复的节点不需要重复访问 */
+            return;
+        }
+        result.add(parentNode.data);
+        if (parentNode.getLeftNode() != null) {
+            doDfsTraversalRecursive(parentNode.getLeftNode(), result);
+        }
+        if (parentNode.getRightNode() != null) {
+            doDfsTraversalRecursive(parentNode.getRightNode(), result);
+        }
+    }
+
 
     public static void main(String[] args) {
         Integer[] objects = Stream.of(1, 2, 3, 4, 5, 6, 7).toArray(Integer[]::new);
         XbLinkedBinaryTree<Integer> build = XbLinkedBinaryTree.build(objects);
         build.toString();
         build.bfsTraversal();
+        build.dfsTraversal(false);
 
     }
 
