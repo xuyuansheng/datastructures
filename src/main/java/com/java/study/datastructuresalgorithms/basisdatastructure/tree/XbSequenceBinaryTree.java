@@ -46,28 +46,46 @@ public class XbSequenceBinaryTree<T> {
     public static <T> XbSequenceBinaryTree<T> build(T[] t) {
         /*  求以2为底,t.length的对数,再向上取整即为高度 */
         double log2 = Math.log(t.length + 1) / Math.log(2);
-        int height = (int) Math.ceil(log2);
+        int height = (int) Math.ceil(log2) - 1;
         Object[] dataT = new Object[t.length + 1];
         System.arraycopy(t, 0, dataT, 1, t.length);
         return new XbSequenceBinaryTree<>((T[]) dataT, height);
     }
 
-
-    @Override
-    public String toString() {
-        /*  打印一个完全二叉树 */
-        for (int i = 1; i <= height; i++) {
-            int index = (int) Math.pow(2, i - 1);
-            int stepLen = (int) Math.pow(2, height - i + 1);
-            int preLen = (stepLen - 2);
-            String collectPreLen = Stream.generate(() -> ".").limit(preLen).collect(Collectors.joining());
-            for (int j = index; j < Math.min(data.length, (2 * index)); j++) {
-                String collect = Stream.generate(() -> ".").limit(stepLen).collect(Collectors.joining());
-                System.out.print(collectPreLen + data[j] + collect);
+    public String prettyToString() {
+        /*  计算每一行最大需要的字符数 */
+        String lineString = Stream.generate(() -> "     ").limit((int) Math.pow(2, this.height + 2)).collect(Collectors.joining());
+        Stream.Builder<String> builder = Stream.builder();
+        /*  广度优先遍历二叉树,即一行一行遍历 */
+        for (int i = this.height; i >= 0; i--) {
+            /*  计算左边距离 */
+            int leftLen = (int) Math.pow(2, i);
+            /*  计算元素之间的距离 */
+            int stepLen = leftLen * 2;
+            StringBuffer lineStringBuffer = new StringBuffer(lineString);
+            /*  每一行的元素个数 */
+            int lineCount = (int) Math.pow(2, this.height - i);
+            /*  每一行元素开始 和 结束的下边 */
+            int lineStartIndex = lineCount;
+            int lineEndIndex = Math.min(lineStartIndex + lineCount - 1, this.data.length - 1);
+            /*  当前元素是这一行中的第几个元素 */
+            int lineIndex = 0;
+            for (int j = lineStartIndex; j <= lineEndIndex; j++) {
+                lineIndex++;
+                T s = this.data[j];
+                if (s == null) {
+                    continue;
+                } else {
+                    String stringData = s.toString();
+                    /*  计算此元素在这一行中是第几个元素,按照满二叉树计算 即: null ,null , 2 ,3 ,则, 3 是第四个元素 */
+                    /*  计算这个元素的首个字符在这一行内是第几个位置 */
+                    int start = ((lineIndex - 1) * stepLen + leftLen) * 5;
+                    lineStringBuffer.replace(start, start + stringData.length(), stringData);
+                }
             }
-            System.out.println("\n");
+            builder.add(lineStringBuffer.toString()).add("\n");
         }
-        return "";
+        return builder.build().collect(Collectors.joining());
     }
 
 
@@ -101,8 +119,9 @@ public class XbSequenceBinaryTree<T> {
     }
 
     public static void main(String[] args) {
-        Integer[] objects = Stream.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16).toArray(Integer[]::new);
+        Integer[] objects = Stream.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 0).toArray(Integer[]::new);
         XbSequenceBinaryTree<Integer> build = XbSequenceBinaryTree.build(objects);
+        System.out.println(build.prettyToString());
         build.bfsTraversal();
         System.out.println(build);
     }
