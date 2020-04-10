@@ -52,9 +52,11 @@ public class XbSequenceBinaryTree<T> {
         return new XbSequenceBinaryTree<>((T[]) dataT, height);
     }
 
-    public String prettyToString() {
+    public String prettyToString(int unitCharsLength) {
+        /*  单个字符的组成方式 */
+        String unitChars = Stream.generate(()->" ").limit(unitCharsLength).collect(Collectors.joining());
         /*  计算每一行最大需要的字符数 */
-        String lineString = Stream.generate(() -> "     ").limit((int) Math.pow(2, this.height + 2)).collect(Collectors.joining());
+        String lineString = Stream.generate(() -> unitChars).limit((int) Math.pow(2, this.height + 2)).collect(Collectors.joining());
         Stream.Builder<String> builder = Stream.builder();
         /*  广度优先遍历二叉树,即一行一行遍历 */
         for (int i = this.height; i >= 0; i--) {
@@ -79,7 +81,7 @@ public class XbSequenceBinaryTree<T> {
                     String stringData = s.toString();
                     /*  计算此元素在这一行中是第几个元素,按照满二叉树计算 即: null ,null , 2 ,3 ,则, 3 是第四个元素 */
                     /*  计算这个元素的首个字符在这一行内是第几个位置 */
-                    int start = ((lineIndex - 1) * stepLen + leftLen) * 5;
+                    int start = ((lineIndex - 1) * stepLen + leftLen) * unitChars.length();
                     lineStringBuffer.replace(start, start + stringData.length(), stringData);
                 }
             }
@@ -119,9 +121,9 @@ public class XbSequenceBinaryTree<T> {
     }
 
     public static void main(String[] args) {
-        Integer[] objects = Stream.iterate(1,i->i+1).limit(50).toArray(Integer[]::new);
+        Integer[] objects = Stream.iterate(1, i -> i + 1).limit(31).toArray(Integer[]::new);
         XbSequenceBinaryTree<Integer> build = XbSequenceBinaryTree.build(objects);
-        System.out.println(build.prettyToString());
+        System.out.println(build.prettyToString(3));
         build.bfsTraversal();
         System.out.println(build);
     }
