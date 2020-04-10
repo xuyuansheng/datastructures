@@ -91,8 +91,8 @@ public class XbLinkedBinaryTree<T> {
         Stream.Builder<String> builder = Stream.builder();
         Optional<XbLinkedBinaryTree<T>> any;
         while ((any = dataList.stream().findAny()).isPresent()) {
-            int currentHeight = any.get().getHeight();
-            int leftLen = (int) Math.pow(2, currentHeight);
+            int currentNodeHeight = this.getHeight()-any.get().getDepth();
+            int leftLen = (int) Math.pow(2, currentNodeHeight);
             int stepLen = leftLen * 2;
             StringBuffer lineStringBuffer = new StringBuffer(lineString);
             int upLevelCount = (int) Math.pow(2, any.get().getDepth()) - 1;
