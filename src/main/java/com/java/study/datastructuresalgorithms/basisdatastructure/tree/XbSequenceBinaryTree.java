@@ -119,7 +119,7 @@ public class XbSequenceBinaryTree<T> {
     }
 
     public static void main(String[] args) {
-        Integer[] objects = Stream.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 0).toArray(Integer[]::new);
+        Integer[] objects = Stream.iterate(1,i->i+1).limit(50).toArray(Integer[]::new);
         XbSequenceBinaryTree<Integer> build = XbSequenceBinaryTree.build(objects);
         System.out.println(build.prettyToString());
         build.bfsTraversal();
