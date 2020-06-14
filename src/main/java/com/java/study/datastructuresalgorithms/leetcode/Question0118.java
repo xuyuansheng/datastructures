@@ -1,7 +1,5 @@
 package com.java.study.datastructuresalgorithms.leetcode;
 
-import com.java.study.datastructuresalgorithms.basisdatastructure.SimpleDataStructure;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
