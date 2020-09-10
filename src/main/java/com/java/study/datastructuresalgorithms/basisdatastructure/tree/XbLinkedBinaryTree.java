@@ -248,7 +248,6 @@ public class XbLinkedBinaryTree<T> {
         System.out.println(build.prettyToString(2));
         System.out.println(build.bfsTraversal());
         build.dfsTraversal(true);
-
     }
 
 }
