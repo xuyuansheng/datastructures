@@ -3,17 +3,17 @@ package com.java.study.datastructuresalgorithms.basisdatastructure.tree;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import org.apache.commons.lang3.RandomUtils;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 
 /**
  * 实现自己的二叉树
@@ -26,7 +26,8 @@ import java.util.stream.Stream;
 @Accessors(chain = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class XbLinkedBinaryTree<T> {
+@EqualsAndHashCode(callSuper = true)
+public class XbLinkedBinaryTree<T> extends AbstractBinaryTree<T> {
 
 
     private XbLinkedBinaryTree<T> leftNode;
@@ -46,117 +47,12 @@ public class XbLinkedBinaryTree<T> {
      * 从下向上递增,最下面高度为0
      */
     private int height;
-    /**
-     * 若使用数组存储二叉树时,此元素在数组中位置的下标
-     */
-    private int index;
-
-    /**
-     * 使用一组数据随机的构建一个二叉树
-     *
-     * @param t 原始数据
-     * @return
-     */
-    public static <T> XbLinkedBinaryTree<T> build(T[] t) {
-        XbLinkedBinaryTree result = null;
-        if (t.length > 0) {
-            result = XbLinkedBinaryTree.build(0, t.length - 1, t, 0, 1);
-        }
-        return result;
-    }
-
-    private static <T> XbLinkedBinaryTree<T> build(int left, int right, T[] t, int depth, int index) {
-        XbLinkedBinaryTree result = null;
-        int length = right - left;
-        if (length >= 0) {
-            /*  选择此节点的数据索引位置 */
-            int pickNumber = RandomUtils.nextInt(left, right + 1);
-            XbLinkedBinaryTree<T> leftTree = XbLinkedBinaryTree.build(left, pickNumber - 1, t, (depth + 1), index * 2);
-            XbLinkedBinaryTree<T> rightTree = XbLinkedBinaryTree.build(pickNumber + 1, right, t, (depth + 1), (index * 2 + 1));
-            int leftTreeHeight = leftTree == null ? 0 : leftTree.getHeight() + 1;
-            int rightTreeHeight = rightTree == null ? 0 : rightTree.getHeight() + 1;
-            result = new XbLinkedBinaryTree(leftTree, t[pickNumber], rightTree, depth, (++depth), Math.max(leftTreeHeight, rightTreeHeight), index);
-        }
-        return result;
-    }
-
-
-    public String prettyToString(int unitCharsLength) {
-        /*  单个字符的组成方式 */
-        String unitChars = Stream.generate(() -> " ").limit(unitCharsLength).collect(Collectors.joining());
-        String lineString = Stream.generate(() -> unitChars).limit((int) Math.pow(2, this.height + 2)).collect(Collectors.joining());
-        /*  把二叉树按层打印出来 */
-        List<XbLinkedBinaryTree<T>> dataList = new ArrayList();
-        dataList.add(this);
-        Stream.Builder<String> builder = Stream.builder();
-        Optional<XbLinkedBinaryTree<T>> any;
-        while ((any = dataList.stream().findAny()).isPresent()) {
-            int currentNodeHeight = this.getHeight()-any.get().getDepth();
-            int leftLen = (int) Math.pow(2, currentNodeHeight);
-            int stepLen = leftLen * 2;
-            StringBuffer lineStringBuffer = new StringBuffer(lineString);
-            int upLevelCount = (int) Math.pow(2, any.get().getDepth()) - 1;
-            dataList = dataList.stream().flatMap(s -> {
-                String stringData = s.getData().toString();
-                /*  计算此元素在这一行中是第几个元素,按照满二叉树计算 即: null ,null , 2 ,3 ,则, 3 是第四个元素 */
-                int lineIndex = s.getIndex() - upLevelCount;
-                /*  计算这个元素的首个字符在这一行内是第几个位置 */
-                int start = ((lineIndex - 1) * stepLen + leftLen) * unitChars.length();
-                lineStringBuffer.replace(start, start + stringData.length(), stringData);
-                Stream<XbLinkedBinaryTree<T>> nodeStream;
-                nodeStream = Stream.of(s.getLeftNode(), s.getRightNode()).filter(n -> n != null);
-                return nodeStream;
-            }).collect(Collectors.toList());
-            builder.add(lineStringBuffer.toString()).add("\n");
-        }
-        return builder.build().collect(Collectors.joining());
-    }
-
-
-    public void prettyToString() throws IOException {
-        /*  把二叉树按层打印出来 */
-        List<XbLinkedBinaryTree<T>> dataList = new ArrayList();
-        dataList.add(this);
-        /* 每一行的元素个数 */
-        int lineCount = (int) Math.pow(2, this.height + 1) - 1;
-
-        FileWriter fileWriter = new FileWriter(new File("tree.adoc"));
-        fileWriter.append("[width=\"50%\"]\n|===\n");
-
-        Optional<XbLinkedBinaryTree<T>> any;
-        while ((any = dataList.stream().filter(Objects::nonNull).findAny()).isPresent()) {
-            int currentNodeHeight = any.get().height;
-            /*  当前行左侧第一个元素的位置 */
-            int leftLen = (int) Math.pow(2, currentNodeHeight) - 1;
-            /*  当前元素之间的间距 */
-            int stepLen = (int) Math.pow(2, currentNodeHeight + 1) - 1;
-            List<XbLinkedBinaryTree<T>> nextDataList = new ArrayList(dataList.size() * 2);
-            String[] lineString = Stream.generate(() -> "|").limit(lineCount).toArray(String[]::new);
-            for (int i = 0; i < dataList.size(); i++) {
-                XbLinkedBinaryTree<T> data = dataList.get(i);
-                int location = leftLen + i * (stepLen + 1);
-                if (data != null) {
-                    lineString[location] = "|" + data.data;
-                    nextDataList.add(data.leftNode);
-                    nextDataList.add(data.rightNode);
-                } else {
-                    lineString[location] = "|*";
-                    nextDataList.add(null);
-                    nextDataList.add(null);
-                }
-            }
-            dataList = nextDataList;
-            fileWriter.append(Stream.of(lineString).collect(Collectors.joining()) + "\n");
-        }
-        fileWriter.append("|===\n");
-        fileWriter.close();
-
-    }
 
 
     /**
      * 广度优先遍历
      */
+    @Override
     public List<T> bfsTraversal() {
         ArrayList<T> list = new ArrayList<>();
         LinkedBlockingDeque<XbLinkedBinaryTree<T>> queue = new LinkedBlockingDeque<>();
@@ -165,13 +61,14 @@ public class XbLinkedBinaryTree<T> {
         while (!queue.isEmpty()) {
             int size = queue.size();
             System.out.print("距离根节点的距离 = " + (lenFromRoot++));
-            Stream.generate(() -> queue.poll()).limit(size).forEach(element -> {
+            Stream.generate(queue::poll).limit(size).forEach(element -> {
                 System.out.print("  element = " + element.data);
-                XbLinkedBinaryTree leftNode = element.getLeftNode();
+                list.add(element.data);
+                XbLinkedBinaryTree<T> leftNode = element.getLeftNode();
                 if (leftNode != null) {
                     queue.add(leftNode);
                 }
-                XbLinkedBinaryTree rightNode = element.getRightNode();
+                XbLinkedBinaryTree<T> rightNode = element.getRightNode();
                 if (rightNode != null) {
                     queue.add(rightNode);
                 }
@@ -182,11 +79,17 @@ public class XbLinkedBinaryTree<T> {
     }
 
     /**
+     * 默认使用自定义栈深度优先遍历
+     */
+    private boolean useStack = true;
+
+    /**
      * 深度优先遍历,使用递归的方式 和 使用栈的方式
      *
-     * @return
+     * @return 结果
      */
-    public List<T> dfsTraversal(boolean useStack) {
+    @Override
+    public List<T> dfsTraversal() {
         ArrayList<T> result = new ArrayList<>();
         if (useStack) {
             doDfsTraversalStack(this, result);
@@ -200,31 +103,34 @@ public class XbLinkedBinaryTree<T> {
     /**
      * 深度优先遍历,使用递归的方式
      *
-     * @return
+     * @return 结果
      */
     private void doDfsTraversalRecursive(XbLinkedBinaryTree<T> parentNode, List<T> result) {
         if (result.contains(parentNode.data)) {
             /*  剪枝,重复的节点不需要重复访问 */
             return;
         }
-        result.add(parentNode.data);
+        int height = 0;
         if (parentNode.getLeftNode() != null) {
             doDfsTraversalRecursive(parentNode.getLeftNode(), result);
+            height = Math.max(height, parentNode.getLeftNode().getHeight() + 1);
         }
         if (parentNode.getRightNode() != null) {
             doDfsTraversalRecursive(parentNode.getRightNode(), result);
+            height = Math.max(height, parentNode.getRightNode().getHeight() + 1);
         }
+        parentNode.height = height;
+        result.add(parentNode.data);
     }
-
 
     /**
      * 深度优先遍历,使用栈的方式
      *
-     * @return
+     * @return 结果
      */
     private void doDfsTraversalStack(XbLinkedBinaryTree<T> parentNode, List<T> result) {
 
-        Stack<XbLinkedBinaryTree> stack = new Stack<>();
+        Stack<XbLinkedBinaryTree<T>> stack = new Stack<>();
         if (parentNode != null) {
             stack.push(parentNode);
         }
@@ -241,13 +147,87 @@ public class XbLinkedBinaryTree<T> {
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        Integer[] objects = Stream.of(1, 2, 3, 4, 5, 6, 7, 8, 9).toArray(Integer[]::new);
-        XbLinkedBinaryTree<Integer> build = XbLinkedBinaryTree.build(objects);
-        build.prettyToString();
-        System.out.println(build.prettyToString(2));
-        System.out.println(build.bfsTraversal());
-        build.dfsTraversal(true);
+    @Override
+    public void prettyPrintToDoc() {
+        /*  把二叉树按层打印出来 */
+        List<XbLinkedBinaryTree<T>> dataList = new ArrayList<>();
+        dataList.add(this);
+        /* 每一行的元素个数(即格子数) */
+        int lineCount = (int) Math.pow(2, this.height + 1) - 1;
+
+        try {
+            FileWriter fileWriter = new FileWriter(new File("tree.adoc"));
+            fileWriter.append("[width=\"50%\"]\n|===\n");
+
+            Optional<XbLinkedBinaryTree<T>> any;
+            while ((any = dataList.stream().filter(Objects::nonNull).findAny()).isPresent()) {
+                int currentNodeHeight = any.get().height;
+                /*  当前行左侧第一个元素的位置 */
+                int leftLen = (int) Math.pow(2, currentNodeHeight) - 1;
+                /*  当前元素之间的间距 */
+                int stepLen = (int) Math.pow(2, currentNodeHeight + 1) - 1;
+                List<XbLinkedBinaryTree<T>> nextDataList = new ArrayList<>(dataList.size() * 2);
+                /*  初始化当前行的表格 */
+                String[] lineString = Stream.generate(() -> "|").limit(lineCount).toArray(String[]::new);
+                for (int i = 0; i < dataList.size(); i++) {
+                    XbLinkedBinaryTree<T> data = dataList.get(i);
+                    /*  当前元素在这一行中的下标 */
+                    int location = leftLen + i * (stepLen + 1);
+                    if (data != null) {
+                        /*  有数据的位置替换为具体数据 */
+                        lineString[location] = "|" + data.data;
+                        nextDataList.add(data.leftNode);
+                        nextDataList.add(data.rightNode);
+                    } else {
+                        /*  没有数据，但此位置在满二叉树是个应该有数据的位置，所以用 * 填充 */
+                        lineString[location] = "|*";
+                        nextDataList.add(null);
+                        nextDataList.add(null);
+                    }
+                }
+                dataList = nextDataList;
+                fileWriter.append(String.join("", lineString)).append("\n");
+            }
+            fileWriter.append("|===\n");
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
+
+    public static <T> XbLinkedBinaryTree<T> build(T[] t) {
+        XbLinkedBinaryTree<T> root = null;
+        Queue<XbLinkedBinaryTree<T>> queue = new LinkedList<>();
+        if (t.length > 0) {
+            root = new XbLinkedBinaryTree<T>().setData(t[0]).setDepth(0).setLevel(1);
+            queue.offer(root);
+        }
+        int index = 1;
+        while (!queue.isEmpty()) {
+            XbLinkedBinaryTree<T> poll = queue.poll();
+            int depth = poll.depth + 1;
+            if (index < t.length && t[index] != null) {
+                poll.leftNode = new XbLinkedBinaryTree<T>().setData(t[index]).setDepth(depth).setLevel(depth + 1);
+                queue.offer(poll.leftNode);
+            }
+            index += 1;
+            if (index < t.length && t[index] != null) {
+                poll.rightNode = new XbLinkedBinaryTree<T>().setData(t[index]).setDepth(depth).setLevel(depth + 1);
+                queue.offer(poll.rightNode);
+            }
+            index += 1;
+        }
+        return root;
+    }
+
+    public static void main(String[] args) {
+        Integer[] objects = Stream.of(1, 2, null, 3, 4, 5, 6, 7, 8, 9, null).toArray(Integer[]::new);
+        XbLinkedBinaryTree<Integer> build = XbLinkedBinaryTree.build(objects).setUseStack(false);
+        build.bfsTraversal();
+        build.dfsTraversal();
+        build.prettyPrintToDoc();
+    }
+
 
 }
