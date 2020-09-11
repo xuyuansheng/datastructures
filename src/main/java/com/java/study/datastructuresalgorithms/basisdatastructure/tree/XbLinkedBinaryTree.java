@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.RandomUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Stack;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -112,6 +112,48 @@ public class XbLinkedBinaryTree<T> {
         return builder.build().collect(Collectors.joining());
     }
 
+
+    public void prettyToString() throws IOException {
+        /*  把二叉树按层打印出来 */
+        List<XbLinkedBinaryTree<T>> dataList = new ArrayList();
+        dataList.add(this);
+        /* 每一行的元素个数 */
+        int lineCount = (int) Math.pow(2, this.height + 1) - 1;
+
+        FileWriter fileWriter = new FileWriter(new File("tree.adoc"));
+        fileWriter.append("[width=\"50%\"]\n|===\n");
+
+        Optional<XbLinkedBinaryTree<T>> any;
+        while ((any = dataList.stream().filter(Objects::nonNull).findAny()).isPresent()) {
+            int currentNodeHeight = any.get().height;
+            /*  当前行左侧第一个元素的位置 */
+            int leftLen = (int) Math.pow(2, currentNodeHeight) - 1;
+            /*  当前元素之间的间距 */
+            int stepLen = (int) Math.pow(2, currentNodeHeight + 1) - 1;
+            List<XbLinkedBinaryTree<T>> nextDataList = new ArrayList(dataList.size() * 2);
+            String[] lineString = Stream.generate(() -> "|").limit(lineCount).toArray(String[]::new);
+            for (int i = 0; i < dataList.size(); i++) {
+                XbLinkedBinaryTree<T> data = dataList.get(i);
+                int location = leftLen + i * (stepLen + 1);
+                if (data != null) {
+                    lineString[location] = "|" + data.data;
+                    nextDataList.add(data.leftNode);
+                    nextDataList.add(data.rightNode);
+                } else {
+                    lineString[location] = "|*";
+                    nextDataList.add(null);
+                    nextDataList.add(null);
+                }
+            }
+            dataList = nextDataList;
+            fileWriter.append(Stream.of(lineString).collect(Collectors.joining()) + "\n");
+        }
+        fileWriter.append("|===\n");
+        fileWriter.close();
+
+    }
+
+
     /**
      * 广度优先遍历
      */
@@ -199,9 +241,10 @@ public class XbLinkedBinaryTree<T> {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Integer[] objects = Stream.of(1, 2, 3, 4, 5, 6, 7, 8, 9).toArray(Integer[]::new);
         XbLinkedBinaryTree<Integer> build = XbLinkedBinaryTree.build(objects);
+        build.prettyToString();
         System.out.println(build.prettyToString(2));
         System.out.println(build.bfsTraversal());
         build.dfsTraversal(true);
