@@ -106,10 +106,6 @@ public class XbLinkedBinaryTree<T> extends AbstractBinaryTree<T> {
      * @return 结果
      */
     private void doDfsTraversalRecursive(XbLinkedBinaryTree<T> parentNode, List<T> result) {
-        if (result.contains(parentNode.data)) {
-            /*  剪枝,重复的节点不需要重复访问 */
-            return;
-        }
         int height = 0;
         if (parentNode.getLeftNode() != null) {
             doDfsTraversalRecursive(parentNode.getLeftNode(), result);
@@ -222,7 +218,7 @@ public class XbLinkedBinaryTree<T> extends AbstractBinaryTree<T> {
     }
 
     public static void main(String[] args) {
-        Integer[] objects = Stream.of(3, 9, 20, null, null, 15, 7).toArray(Integer[]::new);
+        Integer[] objects = Stream.of(2,3,3,null,null,4,4).toArray(Integer[]::new);
         XbLinkedBinaryTree<Integer> build = XbLinkedBinaryTree.build(objects).setUseStack(false);
         build.bfsTraversal();
         build.dfsTraversal();
