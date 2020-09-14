@@ -161,11 +161,11 @@ public class XbLinkedBinaryTree<T> extends AbstractBinaryTree<T> {
 
             Optional<XbLinkedBinaryTree<T>> any;
             while ((any = dataList.stream().filter(Objects::nonNull).findAny()).isPresent()) {
-                int currentNodeHeight = any.get().height;
+                int current = this.height - any.get().depth;
                 /*  当前行左侧第一个元素的位置 */
-                int leftLen = (int) Math.pow(2, currentNodeHeight) - 1;
+                int leftLen = (int) Math.pow(2, current) - 1;
                 /*  当前元素之间的间距 */
-                int stepLen = (int) Math.pow(2, currentNodeHeight + 1) - 1;
+                int stepLen = (int) Math.pow(2, current + 1) - 1;
                 List<XbLinkedBinaryTree<T>> nextDataList = new ArrayList<>(dataList.size() * 2);
                 /*  初始化当前行的表格 */
                 String[] lineString = Stream.generate(() -> "|").limit(lineCount).toArray(String[]::new);
@@ -222,7 +222,7 @@ public class XbLinkedBinaryTree<T> extends AbstractBinaryTree<T> {
     }
 
     public static void main(String[] args) {
-        Integer[] objects = Stream.of(1, 2, null, 3, 4, 5, 6, 7, 8, 9, null).toArray(Integer[]::new);
+        Integer[] objects = Stream.of(3, 9, 20, null, null, 15, 7).toArray(Integer[]::new);
         XbLinkedBinaryTree<Integer> build = XbLinkedBinaryTree.build(objects).setUseStack(false);
         build.bfsTraversal();
         build.dfsTraversal();
