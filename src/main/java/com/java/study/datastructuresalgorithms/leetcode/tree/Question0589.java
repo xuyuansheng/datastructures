@@ -47,7 +47,7 @@ public class Question0589 {
             output.add(node.val);
             if (node.children != null) {
                 /*  反序入栈，才能正序出栈 */
-                for (int i = node.children.size() - 1; i >= 0; i++) {
+                for (int i = node.children.size() - 1; i >= 0; i--) {
                     stack.add(node.children.get(i));
                 }
             }
