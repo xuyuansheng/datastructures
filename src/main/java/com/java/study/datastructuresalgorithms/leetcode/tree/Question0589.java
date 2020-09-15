@@ -26,23 +26,48 @@ public class Question0589 {
         node1.children = Stream.of(node3, new Node(2), new Node(4)).collect(Collectors.toList());
         node3.children = Stream.of(new Node(5), new Node(6)).collect(Collectors.toList());
         List<Integer> preorder = new Question0589().preorder(node1);
-        new Question0589().bfs(node1);
         System.out.println(preorder);
     }
 
-
+    /**
+     * 栈实现
+     *
+     * @param root
+     * @return
+     */
     public List<Integer> preorder(Node root) {
-        ArrayList<Integer> objects = new ArrayList<>();
-        preorder(root, objects);
-        return objects;
+        Stack<Node> stack = new Stack<>();
+        LinkedList<Integer> output = new LinkedList<>();
+        if (root == null) {
+            return output;
+        }
+        stack.add(root);
+        while (!stack.isEmpty()) {
+            Node node = stack.pop();
+            output.add(node.val);
+            if (node.children != null) {
+                /*  反序入栈，才能正序出栈 */
+                for (int i = node.children.size() - 1; i >= 0; i++) {
+                    stack.add(node.children.get(i));
+                }
+            }
+        }
+        return output;
     }
 
-    public void preorder(Node root, List<Integer> result) {
+
+    /**
+     * 递归实现
+     *
+     * @param root
+     * @param result
+     */
+    public void preorderRecursion(Node root, List<Integer> result) {
         if (root != null) {
             result.add(root.val);
             if (root.children != null) {
                 for (Node n : root.children) {
-                    preorder(n, result);
+                    preorderRecursion(n, result);
                 }
             }
         }
