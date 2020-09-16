@@ -1,6 +1,9 @@
 package com.java.study.datastructuresalgorithms.leetcode.tree;
 
+
 import com.java.study.datastructuresalgorithms.leetcode.tree.printer.BinaryTrees;
+
+import java.util.LinkedList;
 
 /**
  * 给定一个不含重复元素的整数数组。一个以此数组构建的最大二叉树定义如下：
@@ -35,15 +38,51 @@ public class Question0654 {
 
 
     public static void main(String[] args) {
-        int[] ints = {3, 2, 1, 6, 0, 5};
+        int[] ints = {3, 2, 1, 6, 0, 1, 2, 5};
         TreeNode treeNode = new Question0654().constructMaximumBinaryTree(ints);
         BinaryTrees.print(treeNode);
     }
 
+    /**
+     * 使用栈的方式实现递归
+     *
+     * @param nums
+     * @return
+     */
     public TreeNode constructMaximumBinaryTree(int[] nums) {
 
         if (nums != null && nums.length > 0) {
-            return constructMaximumBinaryTree(nums, 0, nums.length - 1);
+            /*  哨兵节点 */
+            TreeNode sentinel = new TreeNode();
+            /*  递归栈 */
+            LinkedList<Object[]> stack = new LinkedList<>();
+            /*  默认把Root节点放到哨兵节点的Left节点上 */
+            stack.add(new Object[]{0, nums.length - 1, true, sentinel});
+            while (!stack.isEmpty()) {
+                Object[] peek = stack.removeLast();
+                int left = (int) peek[0];
+                int right = (int) peek[1];
+                boolean isLeft = (boolean) peek[2];
+                TreeNode parent = (TreeNode) peek[3];
+
+                if (right - left >= 0) {
+                    int maxIndex = left;
+                    for (int i = left; i < right + 1; i++) {
+                        if (nums[i] > nums[maxIndex]) {
+                            maxIndex = i;
+                        }
+                    }
+                    TreeNode treeNode = new TreeNode(nums[maxIndex]);
+                    if (isLeft) {
+                        parent.left = treeNode;
+                    } else {
+                        parent.right = treeNode;
+                    }
+                    stack.add(new Object[]{left, maxIndex - 1, true, treeNode});
+                    stack.add(new Object[]{maxIndex + 1, right, false, treeNode});
+                }
+            }
+            return sentinel.left;
         }
         return null;
     }
