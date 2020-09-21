@@ -36,10 +36,46 @@ public class Question0538 {
     }
 
     public TreeNode convertBST(TreeNode root) {
-        convert(root, 0);
+        Integer sum = 0;
+        TreeNode currentNode = root;
+        while (currentNode != null) {
+            boolean rightNull = currentNode.right == null;
+            if (rightNull) {
+                /* 右边为Null，直接处理当前节点  */
+                currentNode.val = currentNode.val + sum;
+                sum = currentNode.val;
+                /*  右边为Null ，所以按顺序遍历下一个节点（反序中序遍历，下一个节点为左子节点） */
+                currentNode = currentNode.left;
+            } else {
+                TreeNode farLeft = getFarLeft(currentNode);
+                if (farLeft.left == null) {
+                    /*  此时表示找到了当前节点的上一个要遍历的节点farLeft  */
+                    farLeft.left = currentNode;
+                    /*  右边不为Null ，先遍历右边 */
+                    currentNode = currentNode.right;
+                } else {
+                    /* farLeft.left == currentNode ， 表示找到自己了，跟右节点为 null 一样（表示当前节点就是要处理的节点），处理当前节点 */
+                    /*  把之前添加的引用去掉，不然会造成循环引用 */
+                    farLeft.left = null;
+                    currentNode.val = currentNode.val + sum;
+                    sum = currentNode.val;
+                    /*   找到自己了 ，所以按顺序遍历下一个节点（反序中序遍历，下一个节点为左子节点） */
+                    currentNode = currentNode.left;
+                }
+            }
+        }
         return root;
     }
 
+    private TreeNode getFarLeft(TreeNode currentNode) {
+        TreeNode farLeft = currentNode.right;
+        /*  找当前节点的前一个要遍历的节点,查找范围为此节点的右子树中
+         * 条件：左节点为Null 或者为自己时，即找到最左节点  */
+        while (farLeft.left != null && farLeft.left != currentNode) {
+            farLeft = farLeft.left;
+        }
+        return farLeft;
+    }
 
     /**
      * 递归反向中序遍历
