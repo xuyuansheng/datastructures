@@ -20,11 +20,47 @@ public class Question0053 {
 
 
     public static void main(String[] args) {
-        int[] nums = new int[]{-2, 1, -3, 4, -1, 2, 1, -5, 4};
+        int[] nums = new int[]{-2, 1, -3, 4, -1, 2, 1, -5, 4, 7};
         int i = new Question0053().maxSubArray(nums);
         System.out.println(i);
     }
 
+
+    public int maxSubArray(int[] nums) {
+        return maxSubArrayDivide(nums, 0, nums.length - 1)[2];
+    }
+
+    /**
+     * 分治
+     *
+     * @param nums
+     * @param left
+     * @param right
+     * @return
+     */
+    public int[] maxSubArrayDivide(int[] nums, int left, int right) {
+        if (left == right) {
+            return new int[]{nums[left], nums[left], nums[left], nums[left]};
+        } else if (left < right) {
+            int mid = (left + right) / 2;
+            int[] intsL = maxSubArrayDivide(nums, left, mid);
+            int[] intsR = maxSubArrayDivide(nums, mid + 1, right);
+            /*左端点为起点的最大子段和, 右端点为终点的最大子段和, 最大子段和,     所有端点的和 */
+            int lSumL = intsL[0], rSumL = intsL[1], mSumL = intsL[2], iSumL = intsL[3];
+            int lSumR = intsR[0], rSumR = intsR[1], mSumR = intsR[2], iSumR = intsR[3];
+            /* 当前区间左端点为起点的最大子段和 */
+            int lSum = Math.max(lSumL, iSumL + lSumR);
+            /*  当前区间右端点为终点的最大子段和 */
+            int rSum = Math.max(rSumR, rSumL + iSumR);
+            /*  当前区间最大子段和 */
+            int mSum = Math.max(Math.max(mSumL, mSumR), rSumL + lSumR);
+            /*  当前区间所有端点的和 */
+            int iSum = iSumL + iSumR;
+            return new int[]{lSum, rSum, mSum, iSum};
+        } else {
+            return new int[]{0, 0, Integer.MIN_VALUE, 0};
+        }
+    }
 
     /**
      * 动态规划
@@ -43,7 +79,7 @@ public class Question0053 {
      * @param nums
      * @return
      */
-    public int maxSubArray(int[] nums) {
+    public int dynamicMaxSubArray(int[] nums) {
         if (Objects.isNull(nums) || nums.length == 0) {
             return Integer.MIN_VALUE;
         }
