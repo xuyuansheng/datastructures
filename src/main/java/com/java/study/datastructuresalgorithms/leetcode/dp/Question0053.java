@@ -1,4 +1,4 @@
-package com.java.study.datastructuresalgorithms.leetcode.dynamicprogramming;
+package com.java.study.datastructuresalgorithms.leetcode.dp;
 
 import java.util.Arrays;
 import java.util.Objects;
