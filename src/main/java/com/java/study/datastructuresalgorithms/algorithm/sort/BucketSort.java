@@ -1,6 +1,7 @@
 package com.java.study.datastructuresalgorithms.algorithm.sort;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -17,7 +18,10 @@ public class BucketSort {
     public static void main(String[] args) {
         Integer[] sort = Stream.of(1, 2, 33, 44, 56, 78, 22, 31, 99, 76, 57, 44, 37, 89, 64, 52, 1).toArray(Integer[]::new);
         Integer[] sorted = new BucketSort().bucketSort(sort);
+        System.out.println(Arrays.toString(sort));
+        new BucketSort().bucketSort(sort, 5, b -> b / 20, Comparator.naturalOrder());
         System.out.println(Arrays.toString(sorted));
+        System.out.println(Arrays.toString(sort));
     }
 
     /**
@@ -27,7 +31,7 @@ public class BucketSort {
      * @param sort 待排序
      * @return 排序后
      */
-    private Integer[] bucketSort(Integer[] sort) {
+    public Integer[] bucketSort(Integer[] sort) {
 
         Map<String, List<Integer>> buckets = new HashMap<>(5);
         buckets.put("0-19", new ArrayList<>());
@@ -61,5 +65,31 @@ public class BucketSort {
                 .toArray(Integer[]::new);
 
     }
+
+    /**
+     * 通用桶数排序算法实现
+     *
+     * @param sort           待排序数据
+     * @param bucketCount    桶个数
+     * @param getBucketIndex 根据要排序的数据，计算出该数据在桶中的位置索引（如：按照手机号某一位排序时，那么dataRange = 10 ,getBucketIndex就可以是 b->b.charAt(i)-'0' ）
+     * @param comparator     桶内排序比较器
+     * @param <T>            要排序的数据类型
+     */
+    public <T> void bucketSort(T[] sort, Integer bucketCount, Function<T, Integer> getBucketIndex, Comparator<T> comparator) {
+        List<T>[] buckets = Stream.generate(() -> new ArrayList(sort.length / bucketCount + 5)).limit(bucketCount).toArray(ArrayList[]::new);
+        for (T t : sort) {
+            buckets[getBucketIndex.apply(t)].add(t);
+        }
+        int aIndex = 0;
+        for (List<T> bucket : buckets) {
+            /*  桶内排序 */
+            bucket.sort(comparator);
+            /*  排序好的数据放回sort */
+            for (int j = 0; j < bucket.size(); j++) {
+                sort[aIndex++] = bucket.get(j);
+            }
+        }
+    }
+
 
 }

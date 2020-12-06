@@ -1,6 +1,9 @@
 package com.java.study.datastructuresalgorithms.algorithm.sort;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -22,6 +25,10 @@ public class CountingSort {
 
         Integer[] sort = Stream.of(1, 2, 33, 44, 56, 78, 22, 31, 99, 76, 57, 44, 37, 89, 64, 52, 1).toArray(Integer[]::new);
         Integer[] sorted = new CountingSort().countingSort(sort);
+        System.out.println(Arrays.toString(sort));
+
+        new CountingSort().countingSort(sort, 101, l -> l);
+        System.out.println(Arrays.toString(sort));
         System.out.println(Arrays.toString(sorted));
 
     }
@@ -33,7 +40,7 @@ public class CountingSort {
      * @param sort 排序前
      * @return 排序后
      */
-    private Integer[] countingSort(Integer[] sort) {
+    public Integer[] countingSort(Integer[] sort) {
 
         /* 数据范围是 0-100 所以需要101个桶,下标就是数据的大小，值为这个数据的数量 如：buckets[1]=7 表示 1 这个数据总共有7个  */
         Integer[] buckets = new Integer[101];
@@ -62,7 +69,38 @@ public class CountingSort {
         return result;
     }
 
+    /**
+     * 通用计数排序算法实现
+     *
+     * @param sort           待排序数据
+     * @param dataRange      数据的值范围（如： 数学考试分数的范围是0-150，所以 dataRange = 151 ）
+     * @param getBucketIndex 根据要排序的数据，计算出该数据在桶中的位置索引（如：按照手机号某一位排序时，那么dataRange = 10 ,getBucketIndex就可以是 b->b.charAt(i)-'0' ）
+     * @param <T>            要排序的数据类型
+     */
+    public <T> void countingSort(T[] sort, Integer dataRange, Function<T, Integer> getBucketIndex) {
 
+        /* 数据范围是 0-100 所以需要101个桶,下标就是数据的大小，值为这个数据的数量 如：buckets[1]=7 表示 1 这个数据总共有7个  */
+        int[] buckets = new int[dataRange];
+        Arrays.fill(buckets, 0);
+
+        /*  计算每个桶的数据个数 */
+        for (T t : sort) {
+            buckets[getBucketIndex.apply(t)]++;
+        }
+
+        /*  数据优化 依次对buckets求和，使buckets中存放的数据为，小于等于这个值的个数
+            如：buckets[0]=7，buckets[1]=8  表示 0 这个数总共有7个， 1 共有 8-7=1 个 */
+        for (int i = 1; i < dataRange; i++) {
+            buckets[i] = buckets[i - 1] + buckets[i];
+        }
+        /*  开始排序 */
+        Object[] array = Stream.of(sort).toArray();
+        for (int i = sort.length - 1; i >= 0; i--) {
+            T data = (T) array[i];
+            Integer index = getBucketIndex.apply(data);
+            sort[--buckets[index]] = data;
+        }
+    }
 }
 
 
